@@ -3,10 +3,10 @@
 import { generateAnswer } from '@/ai/flows/generate-answer';
 import { displaySourceAttributions } from '@/ai/flows/display-source-attributions';
 import { z } from 'zod';
-import { redirect } from 'next/navigation';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { redirect } from 'next/navigation';
 
 const AskQuestionSchema = z.object({
   question: z.string().min(10, { message: 'Question must be at least 10 characters long.' }),
