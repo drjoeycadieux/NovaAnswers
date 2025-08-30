@@ -20,6 +20,11 @@ export interface FormState {
   history?: ChatHistoryItem[];
 }
 
+export interface AuthState {
+  error?: string;
+  success?: boolean;
+}
+
 export interface ChatHistoryItem {
     id: string;
     question: string;
@@ -90,30 +95,30 @@ export async function askQuestionAction(prevState: FormState, formData: FormData
   }
 }
 
-export async function loginAction(previousState: any, formData: FormData) {
+export async function loginAction(previousState: any, formData: FormData): Promise<AuthState> {
   const validatedFields = LoginSchema.safeParse(Object.fromEntries(formData.entries()));
   if (!validatedFields.success) {
-    return { error: 'Invalid fields' };
+    return { error: 'Invalid email or password format.' };
   }
   try {
     await signInWithEmailAndPassword(auth, validatedFields.data.email, validatedFields.data.password);
+    return { success: true };
   } catch (e: any) {
     return { error: e.message };
   }
-  redirect('/');
 }
 
-export async function signupAction(previousState: any, formData: FormData) {
+export async function signupAction(previousState: any, formData: FormData): Promise<AuthState> {
   const validatedFields = SignupSchema.safeParse(Object.fromEntries(formData.entries()));
   if (!validatedFields.success) {
-    return { error: 'Invalid fields' };
+     return { error: 'Invalid email or password format.' };
   }
   try {
     await createUserWithEmailAndPassword(auth, validatedFields.data.email, validatedFields.data.password);
+    return { success: true };
   } catch (e: any) {
     return { error: e.message };
   }
-  redirect('/');
 }
 
 export async function logoutAction() {

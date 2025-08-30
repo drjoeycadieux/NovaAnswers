@@ -115,6 +115,7 @@ export function QASection() {
   const { user, loading } = useAuth();
   const [history, setHistory] = useState<ChatHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const userJustLoaded = useRef(false);
 
   
   useEffect(() => {
@@ -126,14 +127,19 @@ export function QASection() {
       });
     }
   }, [state, toast]);
-
+  
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && userJustLoaded.current) {
       toast({
         title: 'Signed In',
         description: `Welcome back, ${user.email}`,
       });
+      userJustLoaded.current = false;
+    }
+  }, [user, loading, toast]);
 
+  useEffect(() => {
+    if (!loading && user) {
       const fetchHistory = async () => {
           setHistoryLoading(true);
           if (!user) return;
@@ -150,6 +156,7 @@ export function QASection() {
               }
           });
           setHistory(chatHistory);
+          userJustLoaded.current = true;
           setHistoryLoading(false);
       }
       fetchHistory();
@@ -235,7 +242,7 @@ export function QASection() {
         </div>
       )}
 
-      {historyLoading ? (
+      {historyLoading && !user ? null : historyLoading ? (
           <div className="mt-12 space-y-8">
               <AnswerSkeleton />
               <AnswerSkeleton />
