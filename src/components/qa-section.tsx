@@ -1,7 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
-import { useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
 import { Bot, User, CornerDownLeft, Loader2, BookCheck } from 'lucide-react';
 
 import { askQuestionAction, type FormState } from '@/app/actions';
@@ -54,7 +54,7 @@ function AnswerSkeleton() {
 
 export function QASection() {
   const initialState: FormState = {};
-  const [state, formAction] = useFormState(askQuestionAction, initialState);
+  const [state, formAction] = useActionState(askQuestionAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const answerRef = useRef<HTMLDivElement>(null);
