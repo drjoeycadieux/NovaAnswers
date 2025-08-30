@@ -118,5 +118,5 @@ export async function signupAction(previousState: any, formData: FormData) {
 
 export async function logoutAction() {
   await signOut(auth);
-  redirect('/');
+  redirect('/login');
 }
