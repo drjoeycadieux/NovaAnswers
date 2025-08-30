@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react-dom';
+import { useActionState } from 'react';
 import { loginAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
