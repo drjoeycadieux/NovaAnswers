@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AdPlaceholder } from './ad-placeholder';
 import { Separator } from './ui/separator';
+import { useAuth } from '@/hooks/use-auth';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -58,7 +59,8 @@ export function QASection() {
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const answerRef = useRef<HTMLDivElement>(null);
-
+  const { user, loading } = useAuth();
+  
   useEffect(() => {
     if (state.error) {
       toast({
@@ -68,6 +70,16 @@ export function QASection() {
       });
     }
   }, [state, toast]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      toast({
+        title: 'Signed In',
+        description: `Welcome back, ${user.email}`,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading]);
 
   useEffect(() => {
     if (state.attributedAnswer) {

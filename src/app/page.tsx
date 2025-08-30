@@ -1,6 +1,7 @@
 import { QASection } from '@/components/qa-section';
 import { Badge } from '@/components/ui/badge';
 import { Logo } from '@/components/logo';
+import { AuthButton } from '@/components/auth-button';
 
 export default function Home() {
   return (
@@ -11,8 +12,8 @@ export default function Home() {
             <Logo />
             <h1 className="text-xl font-bold font-headline ml-2">Nova Answers</h1>
           </div>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            {/* Nav links can go here */}
+          <nav className="flex items-center space-x-6 text-sm font-medium flex-1 justify-end">
+            <AuthButton />
           </nav>
         </div>
       </header>

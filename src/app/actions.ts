@@ -3,6 +3,9 @@
 import { generateAnswer } from '@/ai/flows/generate-answer';
 import { displaySourceAttributions } from '@/ai/flows/display-source-attributions';
 import { z } from 'zod';
+import { redirect } from 'next/navigation';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 const AskQuestionSchema = z.object({
   question: z.string().min(10, { message: 'Question must be at least 10 characters long.' }),
@@ -14,6 +17,16 @@ export interface FormState {
   question?: string;
   error?: string;
 }
+
+const LoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+const SignupSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
 
 export async function askQuestionAction(prevState: FormState, formData: FormData): Promise<FormState> {
   const validatedFields = AskQuestionSchema.safeParse({
@@ -63,4 +76,35 @@ export async function askQuestionAction(prevState: FormState, formData: FormData
       error: 'An unexpected error occurred. Please check your connection or try again later.',
     };
   }
+}
+
+export async function loginAction(previousState: any, formData: FormData) {
+  const validatedFields = LoginSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!validatedFields.success) {
+    return { error: 'Invalid fields' };
+  }
+  try {
+    await signInWithEmailAndPassword(auth, validatedFields.data.email, validatedFields.data.password);
+  } catch (e: any) {
+    return { error: e.message };
+  }
+  redirect('/');
+}
+
+export async function signupAction(previousState: any, formData: FormData) {
+  const validatedFields = SignupSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!validatedFields.success) {
+    return { error: 'Invalid fields' };
+  }
+  try {
+    await createUserWithEmailAndPassword(auth, validatedFields.data.email, validatedFields.data.password);
+  } catch (e: any) {
+    return { error: e.message };
+  }
+  redirect('/');
+}
+
+export async function logoutAction() {
+  await signOut(auth);
+  redirect('/');
 }

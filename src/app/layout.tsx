@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
   title: 'Nova Answers - Ask AI Anything',
@@ -25,7 +26,9 @@ export default function RootLayout({
      crossOrigin="anonymous"></script>
       </head>
       <body className="font-body antialiased">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
