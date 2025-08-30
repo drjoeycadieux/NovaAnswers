@@ -5,7 +5,8 @@ import { displaySourceAttributions } from '@/ai/flows/display-source-attribution
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 const AskQuestionSchema = z.object({
   question: z.string().min(10, { message: 'Question must be at least 10 characters long.' }),
@@ -16,6 +17,15 @@ export interface FormState {
   sources?: string[];
   question?: string;
   error?: string;
+  history?: ChatHistoryItem[];
+}
+
+export interface ChatHistoryItem {
+    id: string;
+    question: string;
+    answer: string;
+    sources: string[];
+    createdAt: Date;
 }
 
 const LoginSchema = z.object({
@@ -48,29 +58,31 @@ export async function askQuestionAction(prevState: FormState, formData: FormData
       return { question, error: 'Could not generate an answer. Please try again.' };
     }
 
-    // Pass the generated answer to the attribution flow
     const attributionResult = await displaySourceAttributions({
       question: question,
       answer: answerResult.answer,
     });
     
-    // If attribution fails, fallback to the non-attributed answer
-    if (!attributionResult || !attributionResult.attributedAnswer) {
-      return { 
-        question, 
-        attributedAnswer: answerResult.answer, 
-        sources: (answerResult.sources || []).concat(attributionResult?.sources || []),
-      };
+    const finalAnswer = attributionResult?.attributedAnswer || answerResult.answer;
+    const finalSources = (answerResult.sources || []).concat(attributionResult?.sources || []);
+
+    const user = auth.currentUser;
+    if (user) {
+        await addDoc(collection(db, 'users', user.uid, 'chats'), {
+            question,
+            answer: finalAnswer,
+            sources: finalSources,
+            createdAt: serverTimestamp(),
+        });
     }
 
     return {
       question,
-      attributedAnswer: attributionResult.attributedAnswer,
-      sources: attributionResult.sources,
+      attributedAnswer: finalAnswer,
+      sources: finalSources,
     };
   } catch (e) {
     console.error(e);
-    // It's better to provide a generic error message to the user
     return {
       question,
       error: 'An unexpected error occurred. Please check your connection or try again later.',
